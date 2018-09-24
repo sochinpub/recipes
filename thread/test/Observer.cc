@@ -2,12 +2,22 @@
 #include <vector>
 #include <stdio.h>
 
+/*
+ *
+ * 事先声明
+ */
 class Observable;
 
 class Observer
 {
  public:
+  /*
+   * 虚函数
+   */
   virtual ~Observer();
+  /*
+   * 纯虚函数
+   */
   virtual void update() = 0;
 
   void observe(Observable* s);
@@ -16,12 +26,20 @@ class Observer
   Observable* subject_;
 };
 
+/*
+ *
+ * 非线程安全的设计
+ */
 class Observable
 {
  public:
   void register_(Observer* x);
   void unregister(Observer* x);
 
+  /*
+   * 通知观察者
+   *
+   */
   void notifyObservers()
   {
     for (size_t i = 0; i < observers_.size(); ++i)
@@ -37,6 +55,10 @@ class Observable
   std::vector<Observer*> observers_;
 };
 
+/*
+ *
+ * 析构时，进行解注册
+ */
 Observer::~Observer()
 {
   subject_->unregister(this);
@@ -65,6 +87,10 @@ void Observable::unregister(Observer* x)
 
 // ---------------------
 
+/*
+ *
+ * 具体的观察者，子类
+ */
 class Foo : public Observer
 {
   virtual void update()
@@ -79,6 +105,10 @@ int main()
   Observable subject;
   p->observe(&subject);
   subject.notifyObservers();
+  /*
+   *
+   * 这里删除对象，触发析构
+   */
   delete p;
   subject.notifyObservers();
 }
